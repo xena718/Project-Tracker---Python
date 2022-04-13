@@ -99,23 +99,19 @@ def assign_grade(student_github, project_title, grade):
     """Assign a student a grade on an assignment and print a confirmation."""
     # jhacks	Markov	10
 
-    QUERY = """INSERT INTO grades (student_github, project_title, grade)
-             VALUES (:student_github, :project_title, :grade)
+    QUERY = """
+        INSERT INTO grades (student_github, project_title, grade)
+        VALUES (:student_github, :project_title, :grade)
           """
 
-    db_cursor = db.session.execute(QUERY, 
-        {'student_github': student_github,
-        'project_title': project_title,
-        'grade': grade
-        })
+    db_cursor = db.session.execute(QUERY, {'student_github': student_github,
+                                        'project_title': project_title,
+                                        'grade': grade})
 
     db.session.commit()
 
-    # QUERY2
 
     project_title, student_github, grade = db_cursor.fetchone()
-
-    # db.session.commit()
 
     print(f"""Confirming that the student with github id of {student_github} 
     has been assigned with a grade of {grade} for project {project_title}""")
