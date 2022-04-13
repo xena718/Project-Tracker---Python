@@ -31,9 +31,10 @@ def get_student_by_github(github):
 
     db_cursor = db.session.execute(QUERY, {'github': github})
 
-    row = db_cursor.fetchone()
+    # row = db_cursor.fetchone() #row is tuple with three.
+    first_name, last_name, github = db_cursor.fetchone()
 
-    print(f"Student: {row[0]} {row[1]}\nGitHub account: {row[2]}")
+    print(f"Student: {first_name} {last_name}\nGitHub account: {github}")
 
 
 def make_new_student(first_name, last_name, github):
@@ -42,22 +43,83 @@ def make_new_student(first_name, last_name, github):
     Given a first name, last name, and GitHub account, add student to the
     database and print a confirmation message.
     """
-    pass
+
+    QUERY = """
+        INSERT INTO students (first_name, last_name, github)
+          VALUES (:first_name, :last_name, :github)
+        """
+
+    db.session.execute(QUERY, {'first_name': first_name,
+                               'last_name': last_name,
+                               'github': github})
+    db.session.commit()
+
+    print(f"Successfully added student: {first_name} {last_name}")
 
 
 def get_project_by_title(title):
     """Given a project title, print information about the project."""
-    pass
+    
+    QUERY = """
+        SELECT *
+        FROM projects
+        where title = :title
+        """
+
+    db_cursor = db.session.execute(QUERY, { 'title' : title })
+
+    id, title, description, max_grade = db_cursor.fetchone()
+
+    db.session.execute(QUERY, {'title': title })
+
+    print(f"Project info: id is {id}, title is {title}, description is {description}, max grade is {max_grade}")
 
 
-def get_grade_by_github_title(github, title):
+
+def get_grade_by_github_title(student_github, project_title):
     """Print grade student received for a project."""
-    pass
+    # jhacks	Markov	10
+    QUERY = """
+        SELECT project_title, grade
+        FROM grades
+        WHERE student_github = :student_github
+        AND project_title = :project_title
+        """
+
+    # db_cursor = db.session.execute(QUERY, {'github': github, 'title': title})
+    db_cursor = db.session.execute(QUERY, {'student_github': student_github, 'project_title': project_title})
+
+    # row = db_cursor.fetchone() #row is tuple with three.
+    project_title, grade = db_cursor.fetchone()
+
+    print(f"The student with project of {project_title} has a a grade of {grade}")
 
 
-def assign_grade(github, title, grade):
+def assign_grade(student_github, project_title, grade):
     """Assign a student a grade on an assignment and print a confirmation."""
-    pass
+    # jhacks	Markov	10
+
+    QUERY = """INSERT INTO grades (student_github, project_title, grade)
+             VALUES (:student_github, :project_title, :grade)
+          """
+
+    db_cursor = db.session.execute(QUERY, 
+        {'student_github': student_github,
+        'project_title': project_title,
+        'grade': grade
+        })
+
+    db.session.commit()
+
+    # QUERY2
+
+    project_title, student_github, grade = db_cursor.fetchone()
+
+    # db.session.commit()
+
+    print(f"""Confirming that the student with github id of {student_github} 
+    has been assigned with a grade of {grade} for project {project_title}""")
+
 
 
 def handle_input():
